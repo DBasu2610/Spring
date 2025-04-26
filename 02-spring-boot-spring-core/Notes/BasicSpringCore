@@ -1,0 +1,216 @@
+
+
+# **Spring Core – The Heart of Spring Framework **  
+
+Spring Core is the **foundation** of the entire Spring Framework. It provides a lightweight **dependency injection (DI) container** that helps manage objects and their dependencies in a structured way.  
+
+---
+
+## **1️⃣ Why Use Spring Core?**  
+
+Imagine you are building a **railway reservation system**. You have multiple components:  
+
+✅ **User Service** (manages passengers)  
+✅ **Ticket Service** (handles bookings)  
+✅ **Payment Service** (processes payments)  
+
+Now, each of these services **depends on other services**. If you create objects manually, it becomes difficult to **manage, update, and test**.  
+
+This is where **Spring Core** helps! It:  
+✔ **Automatically manages objects and dependencies**  
+✔ **Makes code flexible and easier to maintain**  
+✔ **Improves testability** by avoiding hard-coded dependencies  
+
+---
+
+## **2️⃣ Key Concepts in Spring Core**  
+
+### **📌 1. Inversion of Control (IoC)**  
+Spring takes control of creating and managing objects **instead of you doing it manually**.  
+
+**Example without IoC:**  
+```java
+public class TicketService {
+    private PaymentService paymentService = new PaymentService(); // Hardcoded dependency
+}
+```
+**Problem:** We are manually creating `PaymentService`, which makes it difficult to change or test.  
+
+**Example with IoC (Spring handles it):**  
+```java
+@Component
+public class TicketService {
+    private final PaymentService paymentService;
+
+    @Autowired
+    public TicketService(PaymentService paymentService) {
+        this.paymentService = paymentService; // Injected automatically
+    }
+}
+```
+**Benefit:** Spring automatically provides `PaymentService` when `TicketService` needs it.  
+
+---
+
+### **📌 2. Dependency Injection (DI)**
+DI is a way to **inject objects (dependencies) into classes** instead of creating them manually.  
+
+#### **Example: Constructor Injection**
+```java
+@Component
+public class TicketService {
+    private final PaymentService paymentService;
+
+    @Autowired // Spring injects PaymentService here
+    public TicketService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+}
+```
+
+#### **Example: Setter Injection**
+```java
+@Component
+public class TicketService {
+    private PaymentService paymentService;
+
+    @Autowired
+    public void setPaymentService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+}
+```
+
+---
+
+### **📌 3. Spring Beans**
+A **Bean** is an object managed by the Spring container.  
+- Every service, component, or repository in Spring is a **bean**.  
+- Spring creates and manages these beans automatically.  
+
+#### **Creating a Bean Using @Component**
+```java
+@Component
+public class PaymentService {
+    public void processPayment() {
+        System.out.println("Processing payment...");
+    }
+}
+```
+
+---
+
+### **📌 4. ApplicationContext (Spring Container)**
+Spring has a **container** that manages objects (beans).  
+- It **creates** objects, **injects** dependencies, and **manages** their lifecycle.  
+
+#### **Example: Loading Spring ApplicationContext**
+```java
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class Main {
+    public static void main(String[] args) {
+        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+
+        // Getting a bean
+        TicketService ticketService = context.getBean(TicketService.class);
+        ticketService.bookTicket();
+    }
+}
+```
+
+---
+
+## **3️⃣ Annotations in Spring Core**
+Spring uses **annotations** to configure beans and dependencies.
+
+| Annotation | Description |
+|------------|------------|
+| `@Component` | Marks a class as a Spring-managed bean |
+| `@Service` | Specialized `@Component` for business logic |
+| `@Repository` | Specialized `@Component` for database access |
+| `@Controller` | Specialized `@Component` for web controllers |
+| `@Autowired` | Automatically injects dependencies |
+| `@Configuration` | Defines a configuration class |
+| `@Bean` | Manually creates a Spring bean |
+
+---
+
+## **4️⃣ Example: Spring Core in Action 🚀**
+Let’s build a simple **Booking System** using **Spring Core**.
+
+### **Step 1: Define a Bean (Payment Service)**
+```java
+import org.springframework.stereotype.Component;
+
+@Component
+public class PaymentService {
+    public void processPayment() {
+        System.out.println("Payment Successful!");
+    }
+}
+```
+
+### **Step 2: Define Another Bean (Ticket Service)**
+```java
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
+public class TicketService {
+    private final PaymentService paymentService;
+
+    @Autowired
+    public TicketService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    public void bookTicket() {
+        System.out.println("Ticket booked!");
+        paymentService.processPayment();
+    }
+}
+```
+
+### **Step 3: Create a Configuration Class**
+```java
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ComponentScan(basePackages = "com.example") // Scans all @Component classes
+public class AppConfig {
+}
+```
+
+### **Step 4: Run the Application**
+```java
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class Main {
+    public static void main(String[] args) {
+        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+
+        TicketService ticketService = context.getBean(TicketService.class);
+        ticketService.bookTicket();
+    }
+}
+```
+
+### **Output**
+```
+Ticket booked!
+Payment Successful!
+```
+
+---
+
+## **5️⃣ Summary**
+✅ **Spring Core is the foundation of the Spring Framework.**  
+✅ **IoC (Inversion of Control)** – Spring manages object creation and dependencies.  
+✅ **DI (Dependency Injection)** – Objects are injected instead of being manually created.  
+✅ **Spring Beans** – Objects managed by Spring, created using `@Component`.  
+✅ **ApplicationContext** – The Spring container that manages beans.  
+

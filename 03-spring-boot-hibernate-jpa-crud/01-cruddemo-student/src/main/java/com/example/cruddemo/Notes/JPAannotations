@@ -1,0 +1,229 @@
+
+
+---
+
+# **1️⃣ Entity Mapping Annotations**
+### **@Entity**
+- Marks a class as a **JPA entity** (a table in the database).  
+- The class must have a **no-argument constructor**.  
+
+```java
+import jakarta.persistence.*;
+
+@Entity
+public class Student {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+    private int age;
+}
+```
+
+---
+
+### **@Table**
+- Specifies the **table name** in the database.  
+- If not specified, the table name is the same as the class name.  
+
+```java
+@Entity
+@Table(name = "students_table") // Maps to students_table instead of Student
+public class Student { }
+```
+
+---
+
+# **2️⃣ Column and Primary Key Annotations**
+### **@Id**
+- Marks a field as the **primary key**.
+
+```java
+@Entity
+public class Student {
+    @Id
+    private Long id;
+}
+```
+
+---
+
+### **@GeneratedValue**
+- Specifies how the **primary key is generated** automatically.  
+- Strategies:
+  - `IDENTITY` – Uses **auto-increment** in the database.
+  - `SEQUENCE` – Uses a **database sequence**.
+  - `TABLE` – Uses a **separate table** for ID generation.
+  - `AUTO` – Chooses the strategy automatically.
+
+```java
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
+```
+
+---
+
+### **@Column**
+- Customizes column properties like name, length, uniqueness, etc.
+
+```java
+@Column(name = "student_name", length = 100, nullable = false, unique = true)
+private String name;
+```
+
+🔹 **Properties of @Column**:
+| Property | Description |
+|----------|-------------|
+| `name` | Custom column name |
+| `length` | Max length of the column |
+| `nullable` | Allows or disallows NULL values |
+| `unique` | Ensures unique values |
+
+---
+
+# **3️⃣ Relationship Mapping Annotations**
+JPA supports **one-to-one, one-to-many, and many-to-many relationships**.
+
+### **@OneToOne**
+- Maps a **one-to-one relationship**.
+
+```java
+@Entity
+public class Student {
+    @Id @GeneratedValue
+    private Long id;
+
+    @OneToOne
+    private Passport passport;
+}
+
+@Entity
+public class Passport {
+    @Id @GeneratedValue
+    private Long id;
+    private String passportNumber;
+}
+```
+
+---
+
+### **@OneToMany**
+- One entity has **multiple related entities**.
+- Example: **One Student → Many Courses**.
+
+```java
+@Entity
+public class Student {
+    @Id @GeneratedValue
+    private Long id;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    private List<Course> courses = new ArrayList<>();
+}
+
+@Entity
+public class Course {
+    @Id @GeneratedValue
+    private Long id;
+
+    @ManyToOne
+    private Student student;
+}
+```
+
+---
+
+### **@ManyToOne**
+- Multiple entities are related to **one entity**.
+- Example: **Many Courses → One Student** (same as above).
+
+```java
+@ManyToOne
+private Student student;
+```
+
+---
+
+### **@ManyToMany**
+- Many entities can have **many related entities**.
+- Example: **Many Students ↔ Many Courses**.
+
+```java
+@Entity
+public class Student {
+    @Id @GeneratedValue
+    private Long id;
+
+    @ManyToMany
+    private List<Course> courses = new ArrayList<>();
+}
+
+@Entity
+public class Course {
+    @Id @GeneratedValue
+    private Long id;
+
+    @ManyToMany(mappedBy = "courses")
+    private List<Student> students = new ArrayList<>();
+}
+```
+
+---
+
+# **4️⃣ Lifecycle and Transaction Annotations**
+### **@Transient**
+- Ignores a field (won’t be stored in the database).
+
+```java
+@Transient
+private int ageInDays;
+```
+
+---
+
+### **@PrePersist & @PostPersist**
+- Hooks to run **before/after** saving an entity.
+
+```java
+@PrePersist
+public void beforeSave() {
+    System.out.println("Saving student...");
+}
+
+@PostPersist
+public void afterSave() {
+    System.out.println("Student saved!");
+}
+```
+
+---
+
+# **5️⃣ Query Annotations**
+### **@NamedQuery**
+- Defines a **pre-written query** that can be reused.
+
+```java
+@NamedQuery(name = "Student.findByName", query = "SELECT s FROM Student s WHERE s.name = :name")
+```
+
+---
+
+### **@Query (Spring Data JPA)**
+- Used to write **custom JPQL queries** in a Spring Boot Repository.
+
+```java
+@Query("SELECT s FROM Student s WHERE s.name = ?1")
+List<Student> findByName(String name);
+```
+
+---
+
+# **Final Thoughts**
+🔹 `@Entity` and `@Table` define database mappings.  
+🔹 `@Id`, `@GeneratedValue`, and `@Column` manage primary keys and attributes.  
+🔹 `@OneToOne`, `@OneToMany`, `@ManyToOne`, `@ManyToMany` handle relationships.  
+🔹 `@Transient` ignores fields, while `@PrePersist` and `@PostPersist` manage lifecycle events.  
+🔹 `@Query` and `@NamedQuery` define custom database queries.  
+
